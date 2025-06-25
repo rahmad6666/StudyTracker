@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyTracker - Pelacak Aktivitas Belajar Harian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8e44ad, #6a1b9a);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            border-left: 5px solid;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.study-time {
+            border-color: #8e44ad;
+        }
+
+        .card.subjects {
+            border-color: #27ae60;
+        }
+
+        .card.productivity {
+            border-color: #f39c12;
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .card .amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card.study-time .amount {
+            color: #8e44ad;
+        }
+
+        .card.subjects .amount {
+            color: #27ae60;
+        }
+
+        .card.productivity .amount {
+            color: #f39c12;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .form-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #8e44ad;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #8e44ad, #6a1b9a);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+        }
+
+        .btn.task-btn {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .btn.note-btn {
+            background: linear-gradient(135deg, #27ae60, #219a52);
+        }
+
+        .activities {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .activities h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .activity-item.study {
+            border-color: #8e44ad;
+        }
+
+        .activity-item.task {
+            border-color: #f39c12;
+        }
+
+        .activity-item.note {
+            border-color: #27ae60;
+        }
+
+        .activity-info {
+            flex: 1;
+        }
+
+        .activity-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .activity-info p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .activity-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .activity-value.study {
+            color: #8e44ad;
+        }
+
+        .activity-value.task {
+            color: #f39c12;
+        }
+
+        .activity-value.note {
+            color: #27ae60;
+        }
+
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .no-activities {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.study-time {
+            background: #8e44ad;
+        }
+
+        .progress-fill.subjects {
+            background: #27ae60;
+        }
+
+        .progress-fill.productivity {
+            background: #f39c12;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .priority-high {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .priority-medium {
+            background: #f39c12;
+            color: white;
+        }
+
+        .priority-low {
+            background: #27ae60;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 StudyTracker</h1>
+            <p>Pantau Aktivitas Belajar dan Produktivitas Harian Anda</p>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card study-time">
+                <h3>Waktu Belajar</h3>
+                <div class="amount" id="totalStudyTime">0 jam</div>
+                <p>Target: 8 jam</p>
+                <div class="progress-bar">
+                    <div class="progress-fill study-time" id="studyTimeProgress"></div>
+                </div>
+            </div>
+            <div class="card subjects">
+                <h3>Mata Pelajaran</h3>
+                <div class="amount" id="totalSubjects">0</div>
+                <p>Dipelajari hari ini</p>
+                <div class="progress-bar">
+                    <div class="progress-fill subjects" id="subjectsProgress"></div>
+                </div>
+            </div>
+            <div class="card productivity">
+                <h3>Tugas Selesai</h3>
+                <div class="amount" id="completedTasks">0</div>
+                <p>Produktivitas harian</p>
+                <div class="progress-bar">
+                    <div class="progress-fill productivity" id="productivityProgress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <h2>📖 Tambah Sesi Belajar</h2>
+                <form id="studyForm">
+                    <div class="form-group">
+                        <label for="studySubject">Mata Pelajaran</label>
+                        <select id="studySubject" required>
+                            <option value="">Pilih Mata Pelajaran</option>
+                            <option value="Matematika">🔢 Matematika</option>
+                            <option value="Fisika">⚛️ Fisika</option>
+                            <option value="Kimia">🧪 Kimia</option>
+                            <option value="Biologi">🧬 Biologi</option>
+                            <option value="Bahasa Indonesia">🇮🇩 Bahasa Indonesia</option>
+                            <option value="Bahasa Inggris">🇺🇸 Bahasa Inggris</option>
+                            <option value="Sejarah">📜 Sejarah</option>
+                            <option value="Geografi">🌍 Geografi</option>
+                            <option value="Ekonomi">💰 Ekonomi</option>
+                            <option value="Sosiologi">👥 Sosiologi</option>
+                            <option value="Programming">💻 Programming</option>
+                            <option value="Lainnya">📚 Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="studyTopic">Topik/Materi</label>
+                        <input type="text" id="studyTopic" placeholder="Misal: Integral, Tenses, Sejarah Kemerdekaan" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studyDuration">Durasi Belajar (menit)</label>
+                        <input type="number" id="studyDuration" placeholder="60" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studyDate">Tanggal</label>
+                        <input type="date" id="studyDate" required>
+                    </div>
+                    <button type="submit" class="btn">Tambah Sesi Belajar</button>
+                </form>
+            </div>
+
+            <div class="form-section">
+                <h2>✅ Tambah Tugas/Target</h2>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="taskTitle">Judul Tugas</label>
+                        <input type="text" id="taskTitle" placeholder="Misal: Kerjakan PR Matematika" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskSubject">Mata Pelajaran</label>
+                        <select id="taskSubject" required>
+                            <option value="">Pilih Mata Pelajaran</option>
+                            <option value="Matematika">🔢 Matematika</option>
+                            <option value="Fisika">⚛️ Fisika</option>
+                            <option value="Kimia">🧪 Kimia</option>
+                            <option value="Biologi">🧬 Biologi</option>
+                            <option value="Bahasa Indonesia">🇮🇩 Bahasa Indonesia</option>
+                            <option value="Bahasa Inggris">🇺🇸 Bahasa Inggris</option>
+                            <option value="Sejarah">📜 Sejarah</option>
+                            <option value="Geografi">🌍 Geografi</option>
+                            <option value="Ekonomi">💰 Ekonomi</option>
+                            <option value="Sosiologi">👥 Sosiologi</option>
+                            <option value="Programming">💻 Programming</option>
+                            <option value="Lainnya">📚 Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Prioritas</label>
+                        <select id="taskPriority" required>
+                            <option value="">Pilih Prioritas</option>
+                            <option value="high">🔴 Tinggi</option>
+                            <option value="medium">🟡 Sedang</option>
+                            <option value="low">🟢 Rendah</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDeadline">Deadline</label>
+                        <input type="date" id="taskDeadline" required>
+                    </div>
+                    <button type="submit" class="btn task-btn">Tambah Tugas</button>
+                </form>
+            </div>
+
+            <div class="activities">
+                <h2>📊 Aktivitas Belajar Hari Ini</h2>
+                <div id="activityList" class="activity-list">
+                    <div class="no-activities">
+                        Belum ada aktivitas belajar hari ini. Mulai tambahkan sesi belajar atau tugas!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class StudyTracker {
+            constructor() {
+                this.activities = JSON.parse(localStorage.getItem('studyActivities')) || [];
+                this.targets = {
+                    studyTime: 480, // 8 hours in minutes
+                    subjects: 5,
+                    tasks: 3
+                };
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.setDefaultDates();
+                this.updateDisplay();
+            }
+
+            bindEvents() {
+                document.getElementById('studyForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addStudySession();
+                });
+
+                document.getElementById('taskForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addTask();
+                });
+            }
+
+            setDefaultDates() {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('studyDate').value = today;
+                document.getElementById('taskDeadline').value = today;
+            }
+
+            addStudySession() {
+                const subject = document.getElementById('studySubject').value;
+                const topic = document.getElementById('studyTopic').value;
+                const duration = parseInt(document.getElementById('studyDuration').value);
+                const date = document.getElementById('studyDate').value;
+
+                if (subject && topic && duration > 0 && date) {
+                    const activity = {
+                        id: Date.now(),
+                        type: 'study',
+                        subject: subject,
+                        topic: topic,
+                        duration: duration,
+                        date: date,
+                        timestamp: new Date().toLocaleString('id-ID')
+                    };
+
+                    this.activities.push(activity);
+                    this.saveData();
+                    this.updateDisplay();
+
+                    // Reset form
+                    document.getElementById('studyForm').reset();
+                    this.setDefaultDates();
+
+                    this.showNotification(`Sesi belajar ${subject} berhasil dicatat!`, 'success');
+                }
+            }
+
+            addTask() {
+                const title = document.getElementById('taskTitle').value;
+                const subject = document.getElementById('taskSubject').value;
+                const priority = document.getElementById('taskPriority').value;
+                const deadline = document.getElementById('taskDeadline').value;
+
+                if (title && subject && priority && deadline) {
+                    const activity = {
+                        id: Date.now(),
+                        type: 'task',
+                        title: title,
+                        subject: subject,
+                        priority: priority,
+                        deadline: deadline,
+                        completed: false,
+                        timestamp: new Date().toLocaleString('id-ID')
+                    };
+
+                    this.activities.push(activity);
+                    this.saveData();
+                    this.updateDisplay();
+
+                    // Reset form
+                    document.getElementById('taskForm').reset();
+                    this.setDefaultDates();
+
+                    this.showNotification(`Tugas "${title}" berhasil ditambahkan!`, 'success');
+                }
+            }
+
+            toggleTask(id) {
+                const activity = this.activities.find(a => a.id === id);
+                if (activity && activity.type === 'task') {
+                    activity.completed = !activity.completed;
+                    this.saveData();
+                    this.updateDisplay();
+                    
+                    const status = activity.completed ? 'selesai' : 'belum selesai';
+                    this.showNotification(`Tugas "${activity.title}" ditandai ${status}!`, 'info');
+                }
+            }
+
+            deleteActivity(id) {
+                if (confirm('Yakin ingin menghapus aktivitas ini?')) {
+                    this.activities = this.activities.filter(a => a.id !== id);
+                    this.saveData();
+                    this.updateDisplay();
+                    this.showNotification('Aktivitas berhasil dihapus!', 'info');
+                }
+            }
+
+            updateDisplay() {
+                this.updateSummary();
+                this.updateActivityList();
+            }
+
+            updateSummary() {
+                const today = new Date().toISOString().split('T')[0];
+                const todayActivities = this.activities.filter(a => 
+                    (a.type === 'study' && a.date === today) || 
+                    (a.type === 'task')
+                );
+
+                // Calculate study time
+                const totalStudyTime = todayActivities
+                    .filter(a => a.type === 'study')
+                    .reduce((sum, a) => sum + a.duration, 0);
+
+                // Calculate unique subjects studied today
+                const studiedSubjects = new Set(
+                    todayActivities
+                        .filter(a => a.type === 'study')
+                        .map(a => a.subject)
+                );
+
+                // Calculate completed tasks
+                const completedTasks = this.activities
+                    .filter(a => a.type === 'task' && a.completed)
+                    .length;
+
+                // Update displays
+                document.getElementById('totalStudyTime').textContent = `${(totalStudyTime/60).toFixed(1)} jam`;
+                document.getElementById('totalSubjects').textContent = studiedSubjects.size;
+                document.getElementById('completedTasks').textContent = completedTasks;
+
+                // Update progress bars
+                this.updateProgressBar('studyTimeProgress', totalStudyTime, this.targets.studyTime);
+                this.updateProgressBar('subjectsProgress', studiedSubjects.size, this.targets.subjects);
+                this.updateProgressBar('productivityProgress', completedTasks, this.targets.tasks);
+            }
+
+            updateProgressBar(elementId, current, target) {
+                const percentage = Math.min((current / target) * 100, 100);
+                document.getElementById(elementId).style.width = `${percentage}%`;
+            }
+
+            updateActivityList() {
+                const listElement = document.getElementById('activityList');
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Show today's study sessions and all tasks
+                const relevantActivities = this.activities.filter(a => 
+                    (a.type === 'study' && a.date === today) || 
+                    (a.type === 'task')
+                );
+                
+                if (relevantActivities.length === 0) {
+                    listElement.innerHTML = '<div class="no-activities">Belum ada aktivitas belajar hari ini. Mulai tambahkan sesi belajar atau tugas!</div>';
+                    return;
+                }
+
+                // Sort activities by timestamp (newest first)
+                const sortedActivities = [...relevantActivities].sort((a, b) => b.id - a.id);
+
+                listElement.innerHTML = sortedActivities.map(activity => {
+                    if (activity.type === 'study') {
+                        return `
+                            <div class="activity-item study">
+                                <div class="activity-info">
+                                    <h4>${activity.subject} - ${activity.topic}</h4>
+                                    <p>${activity.duration} menit • ${activity.timestamp}</p>
+                                </div>
+                                <div class="activity-value study">
+                                    ${activity.duration}m
+                                    <button class="delete-btn" onclick="tracker.deleteActivity(${activity.id})">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const priorityClass = `priority-${activity.priority}`;
+                        const priorityText = {
+                            high: 'Tinggi',
+                            medium: 'Sedang',
+                            low: 'Rendah'
+                        }[activity.priority];
+                        
+                        const completedClass = activity.completed ? 'style="opacity: 0.6; text-decoration: line-through;"' : '';
+                        const statusIcon = activity.completed ? '✅' : '⏳';
+                        
+                        return `
+                            <div class="activity-item task" ${completedClass}>
+                                <div class="activity-info">
+                                    <h4>${activity.title} <span class="priority-badge ${priorityClass}">${priorityText}</span></h4>
+                                    <p>${activity.subject} • Deadline: ${new Date(activity.deadline).toLocaleDateString('id-ID')}</p>
+                                </div>
+                                <div class="activity-value task">
+                                    <button onclick="tracker.toggleTask(${activity.id})" style="background: none; border: none; font-size: 20px; cursor: pointer; margin-right: 5px;">${statusIcon}</button>
+                                    <button class="delete-btn" onclick="tracker.deleteActivity(${activity.id})">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }).join('');
+            }
+
+            saveData() {
+                localStorage.setItem('studyActivities', JSON.stringify(this.activities));
+            }
+
+            showNotification(message, type) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#27ae60' : type === 'info' ? '#3498db' : '#8e44ad'};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                    font-weight: 500;
+                    opacity: 0;
+                    transform: translateY(-20px);
+                    transition: all 0.3s ease;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                // Animate in
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateY(0)';
+                }, 100);
+
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-20px)';
+                    setTimeout(() => document.body.removeChild(notification), 300);
+                }, 3000);
+            }
+        }
+
+        // Initialize the app
+        const tracker = new StudyTracker();
+    </script>
+</body>
+</html>
