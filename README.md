@@ -1,7 +1,8 @@
 # StudyTracker
 # StudyTracker - Pelacak Aktivitas Belajar Harian
 
-![StudyTracker Preview](https://rahmad6666.github.io/StudyTracker/)
+untuk mencoba ada pada link dibawah ini
+https://rahmad6666.github.io/StudyTracker/
 
 Aplikasi web sederhana untuk memantau dan mengelola aktivitas belajar harian. Dibangun dengan HTML, CSS, dan JavaScript murni (tanpa framework).
 
